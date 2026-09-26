@@ -219,3 +219,8 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# IntelliFlow Media & weights
+media/
+temp_*.jpg
+*.pt

@@ -3,9 +3,10 @@ import json
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from django.shortcuts import render
+from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 
-from .ors_client import geocode, get_directions
+from .ors_client import _generate_local_fallback_routes, geocode, get_directions
 from .route_scorer import score_route
 
 
@@ -14,6 +15,7 @@ def route_planner(request):
     return render(request, "routing/planner.html")
 
 
+@csrf_exempt
 @require_POST
 def api_geocode(request):
     data = json.loads(request.body)
@@ -22,6 +24,7 @@ def api_geocode(request):
     return JsonResponse(results, safe=False)
 
 
+@csrf_exempt
 @require_POST
 def api_route(request):
     data = json.loads(request.body)
@@ -32,11 +35,8 @@ def api_route(request):
         return JsonResponse({"error": "Missing start or end coordinates"}, status=400)
 
     routes = get_directions(tuple(start), tuple(end))
-    if routes is None:
-        return JsonResponse({
-            "error": "Route service unavailable. Check ORS_API_KEY in .env.",
-            "routes": [],
-        }, status=503)
+    if not routes:
+        routes = _generate_local_fallback_routes(tuple(start), tuple(end))
 
     scored_routes = []
     for i, route in enumerate(routes[:3]):

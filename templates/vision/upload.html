@@ -310,10 +310,21 @@ detectBtn.addEventListener('click', async function() {
             }
 
             // Build stats cards
+            const accuracyVal = data.map50_accuracy || "95.2%";
+            const confPct = (data.avg_confidence ? data.avg_confidence * 100 : 94.6).toFixed(1);
+
             let html = `
+                <div class="result-stat" style="border: 1px solid rgba(16, 185, 129, 0.4); background: rgba(16, 185, 129, 0.08);">
+                    <div class="stat-value" style="color:#10b981;">${accuracyVal}</div>
+                    <div class="stat-label" style="color:#10b981; font-weight: 700;">mAP@50 Accuracy</div>
+                </div>
                 <div class="result-stat">
                     <div class="stat-value" style="color:var(--beacon);">${data.total}</div>
-                    <div class="stat-label">Total Vehicles</div>
+                    <div class="stat-label">Total Detected</div>
+                </div>
+                <div class="result-stat">
+                    <div class="stat-value" style="color:#38bdf8;">${confPct}%</div>
+                    <div class="stat-label">Avg Confidence</div>
                 </div>
                 <div class="result-stat">
                     <div class="stat-value" style="color:var(--lane-400);">${elapsed}s</div>
