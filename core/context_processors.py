@@ -10,6 +10,7 @@ def nav_context(request):
         {"url": "/routing/", "label": "Route Planner", "icon": "&#10132;", "id": "routing"},
         {"url": "/map/intersections/", "label": "Intersections", "icon": "&#8942;", "id": "intersections"},
         {"url": "/signals/", "label": "Signals", "icon": "&#9899;", "id": "signals"},
+        {"url": "/signals/decision-center/", "label": "Decision Center", "icon": "⚡", "id": "decision_center"},
         {"url": "/emergency/", "label": "Emergency", "icon": "&#9888;", "id": "emergency"},
         {"url": "/analytics/", "label": "Analytics", "icon": "&#9776;", "id": "analytics"},
         {"url": "/vision/", "label": "Vision", "icon": "&#128247;", "id": "vision"},

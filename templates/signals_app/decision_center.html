@@ -1,0 +1,1134 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Predictive Traffic Decision Center — IntelliFlow 2.0{% endblock %}
+{% block page_title %}Predictive Traffic Decision Center <span style="font-size:0.75rem; background:linear-gradient(135deg, #2563eb, #7c3aed); color:#fff; padding:3px 8px; border-radius:9999px; margin-left:8px; font-weight:700;">INTELLIFLOW 2.0 AI</span>{% endblock %}
+
+{% block extra_css %}
+<style>
+/* IntelliFlow 2.0 Decision Center Theme */
+:root {
+    --glass-bg: rgba(15, 23, 42, 0.75);
+    --glass-border: rgba(148, 163, 184, 0.15);
+    --card-hover: rgba(30, 41, 59, 0.85);
+    --glow-blue: rgba(37, 99, 235, 0.25);
+    --glow-green: rgba(16, 185, 129, 0.25);
+}
+
+.dc-container {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    padding-bottom: 2.5rem;
+}
+
+/* Anomaly Alert Bar */
+.anomaly-banner {
+    background: linear-gradient(90deg, rgba(239, 68, 68, 0.15), rgba(245, 158, 11, 0.12));
+    border: 1px solid rgba(239, 68, 68, 0.35);
+    border-radius: 12px;
+    padding: 12px 18px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    backdrop-filter: blur(10px);
+}
+
+.anomaly-title {
+    font-weight: 700;
+    color: #f87171;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.95rem;
+}
+
+/* Process Pipeline Bar */
+.pipeline-stepper {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: 12px;
+    padding: 10px 20px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #94a3b8;
+}
+
+.step-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.2s;
+}
+
+.step-item.active {
+    color: #60a5fa;
+    text-shadow: 0 0 10px rgba(96, 165, 250, 0.5);
+}
+
+.step-sep {
+    color: #475569;
+}
+
+/* Two-column layout */
+.dc-grid {
+    display: grid;
+    grid-template-columns: 380px 1fr;
+    gap: 1.5rem;
+}
+
+@media (max-width: 1100px) {
+    .dc-grid { grid-template-columns: 1fr; }
+}
+
+.dc-card {
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: 14px;
+    padding: 1.25rem;
+    backdrop-filter: blur(12px);
+    box-shadow: 0 8px 24px -4px rgba(0, 0, 0, 0.3);
+}
+
+.dc-card-title {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: #f8fafc;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid rgba(148, 163, 184, 0.1);
+    padding-bottom: 8px;
+}
+
+/* Form Controls */
+.control-group {
+    margin-bottom: 1.1rem;
+}
+
+.control-label {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #94a3b8;
+    margin-bottom: 6px;
+}
+
+.control-select {
+    width: 100%;
+    background: #0f172a;
+    border: 1px solid #334155;
+    color: #f8fafc;
+    padding: 9px 12px;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    outline: none;
+}
+
+.control-select:focus {
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+}
+
+.range-slider-wrap {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.range-slider {
+    flex: 1;
+    height: 6px;
+    border-radius: 4px;
+    accent-color: #3b82f6;
+    background: #1e293b;
+    outline: none;
+}
+
+.slider-val-box {
+    background: #1e293b;
+    border: 1px solid #334155;
+    color: #38bdf8;
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: 6px;
+    min-width: 48px;
+    text-align: center;
+    font-size: 0.95rem;
+}
+
+.preset-btn-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+    margin-top: 6px;
+}
+
+.preset-btn {
+    background: #1e293b;
+    border: 1px solid #334155;
+    color: #94a3b8;
+    padding: 6px;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.preset-btn:hover, .preset-btn.active {
+    background: #2563eb;
+    color: #ffffff;
+    border-color: #3b82f6;
+}
+
+.btn-simulate {
+    width: 100%;
+    background: linear-gradient(135deg, #2563eb, #1d4ed8);
+    color: #ffffff;
+    font-weight: 700;
+    padding: 12px;
+    border-radius: 10px;
+    border: none;
+    cursor: pointer;
+    font-size: 0.95rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    box-shadow: 0 4px 12px var(--glow-blue);
+    transition: all 0.2s;
+}
+
+.btn-simulate:hover {
+    filter: brightness(1.15);
+    transform: translateY(-1px);
+}
+
+.btn-optimize {
+    width: 100%;
+    margin-top: 8px;
+    background: linear-gradient(135deg, #7c3aed, #6d28d9);
+    color: #ffffff;
+    font-weight: 700;
+    padding: 12px;
+    border-radius: 10px;
+    border: none;
+    cursor: pointer;
+    font-size: 0.95rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    box-shadow: 0 4px 12px rgba(124, 58, 237, 0.25);
+    transition: all 0.2s;
+}
+
+.btn-optimize:hover {
+    filter: brightness(1.15);
+    transform: translateY(-1px);
+}
+
+/* Before / After Comparison Grid */
+.comparison-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    margin-bottom: 1.25rem;
+}
+
+.metric-box {
+    background: #0f172a;
+    border: 1px solid #1e293b;
+    border-radius: 10px;
+    padding: 12px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.metric-title {
+    font-size: 0.75rem;
+    color: #94a3b8;
+    text-transform: uppercase;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    margin-bottom: 6px;
+}
+
+.metric-val-compare {
+    display: flex;
+    align-items: baseline;
+    justify-content: center;
+    gap: 8px;
+    font-family: 'JetBrains Mono', monospace;
+}
+
+.val-before {
+    color: #94a3b8;
+    font-size: 1.05rem;
+    text-decoration: line-through;
+    opacity: 0.7;
+}
+
+.val-after {
+    color: #38bdf8;
+    font-size: 1.35rem;
+    font-weight: 800;
+}
+
+.metric-delta {
+    display: inline-block;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    margin-top: 4px;
+    font-family: 'JetBrains Mono', monospace;
+}
+
+.delta-good { background: rgba(16, 185, 129, 0.2); color: #34d399; }
+.delta-bad { background: rgba(239, 68, 68, 0.2); color: #f87171; }
+.delta-neutral { background: rgba(148, 163, 184, 0.2); color: #94a3b8; }
+
+/* Attribution Tags */
+.attribution-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 1rem;
+}
+
+.attr-tag {
+    font-size: 0.72rem;
+    padding: 3px 8px;
+    border-radius: 9999px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+.attr-actual { background: #064e3b; color: #6ee7b7; border: 1px solid #059669; }
+.attr-ml { background: #1e1b4b; color: #c7d2fe; border: 1px solid #4338ca; }
+.attr-sim { background: #172554; color: #93c5fd; border: 1px solid #2563eb; }
+.attr-heuristic { background: #3b0764; color: #f5d0fe; border: 1px solid #9333ea; }
+
+/* Ripple Flow Visualization */
+.ripple-board {
+    background: #0b1329;
+    border: 1px solid #1e293b;
+    border-radius: 12px;
+    padding: 14px;
+    margin-bottom: 1.25rem;
+}
+
+.ripple-node-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 8px;
+}
+
+.ripple-node-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: #0f172a;
+    border: 1px solid #1e293b;
+    padding: 8px 12px;
+    border-radius: 8px;
+    font-size: 0.85rem;
+}
+
+/* AI Explanation Box */
+.explanation-box {
+    background: rgba(30, 41, 59, 0.6);
+    border-left: 4px solid #3b82f6;
+    border-radius: 0 10px 10px 0;
+    padding: 12px 16px;
+    margin-bottom: 1.25rem;
+}
+
+.explanation-title {
+    font-weight: 700;
+    color: #60a5fa;
+    margin-bottom: 6px;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.explanation-list {
+    margin-left: 18px;
+    font-size: 0.85rem;
+    color: #cbd5e1;
+    line-height: 1.5;
+}
+
+/* Human-in-the-Loop Actions */
+.approval-panel {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    background: #0f172a;
+    border: 1px solid #334155;
+    border-radius: 12px;
+    padding: 12px 18px;
+}
+
+.btn-approve {
+    flex: 1;
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: #ffffff;
+    font-weight: 700;
+    padding: 10px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    font-size: 0.9rem;
+    box-shadow: 0 4px 10px var(--glow-green);
+    transition: all 0.2s;
+}
+
+.btn-approve:hover { filter: brightness(1.15); }
+
+.btn-reject {
+    background: #334155;
+    color: #cbd5e1;
+    font-weight: 600;
+    padding: 10px 16px;
+    border-radius: 8px;
+    border: 1px solid #475569;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: all 0.2s;
+}
+
+.btn-reject:hover { background: #475569; color: #fff; }
+
+/* AI Learning History Table */
+.history-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.82rem;
+    margin-top: 10px;
+}
+
+.history-table th {
+    background: #0f172a;
+    color: #94a3b8;
+    text-align: left;
+    padding: 8px 10px;
+    border-bottom: 2px solid #1e293b;
+    font-weight: 600;
+}
+
+.history-table td {
+    padding: 8px 10px;
+    border-bottom: 1px solid #1e293b;
+    color: #cbd5e1;
+}
+
+.badge-outcome {
+    padding: 3px 8px;
+    border-radius: 9999px;
+    font-weight: 700;
+    font-size: 0.72rem;
+}
+.badge-improved { background: rgba(16, 185, 129, 0.2); color: #34d399; }
+.badge-degraded { background: rgba(239, 68, 68, 0.2); color: #f87171; }
+.badge-neutral { background: rgba(148, 163, 184, 0.2); color: #94a3b8; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="dc-container">
+
+    <!-- Anomaly Alert Banner (Feature 7) -->
+    <div class="anomaly-banner" id="anomaly-banner">
+        <div class="anomaly-title">
+            <span>🚨</span>
+            <span id="anomaly-text">Active Anomaly Scan: 2 Abnormal Flow Clusters Flagged across Outer Ring Road</span>
+        </div>
+        <div style="display:flex; align-items:center; gap:8px;">
+            <span class="badge-outcome badge-improved" style="background:#dc2626; color:#fff;">LIVE ANOMALY DETECTOR</span>
+            <button class="preset-btn" onclick="refreshAnomalies()" style="padding:4px 10px;">Re-scan</button>
+        </div>
+    </div>
+
+    <!-- Process Stepper: PREDICT -> SIMULATE -> OPTIMIZE -> APPROVE -> APPLY -> LEARN -->
+    <div class="pipeline-stepper">
+        <div class="step-item active"><span>1. DATA</span></div>
+        <span class="step-sep">&rarr;</span>
+        <div class="step-item active"><span>2. PREDICT</span></div>
+        <span class="step-sep">&rarr;</span>
+        <div class="step-item active"><span>3. SIMULATE</span></div>
+        <span class="step-sep">&rarr;</span>
+        <div class="step-item active"><span>4. OPTIMIZE</span></div>
+        <span class="step-sep">&rarr;</span>
+        <div class="step-item active" style="color:#f59e0b;"><span>5. HUMAN APPROVAL</span></div>
+        <span class="step-sep">&rarr;</span>
+        <div class="step-item active"><span>6. APPLY</span></div>
+        <span class="step-sep">&rarr;</span>
+        <div class="step-item active" style="color:#10b981;"><span>7. OBSERVE & LEARN</span></div>
+    </div>
+
+    <!-- Main Two-Column Layout -->
+    <div class="dc-grid">
+        
+        <!-- Left Column: Controls & Optimization Trigger -->
+        <div class="dc-card">
+            <div class="dc-card-title">
+                <span>Signal Decision Controls</span>
+                <span style="font-size:0.75rem; color:#60a5fa;">Safety Safe-Band: 30–75s</span>
+            </div>
+
+            <!-- Intersection Selector -->
+            <div class="control-group">
+                <div class="control-label">
+                    <span>Target Intersection</span>
+                    <span id="cur-area-label" style="color:#38bdf8;">Electronic City</span>
+                </div>
+                <select id="ix-selector" class="control-select" onchange="onIntersectionChange()">
+                    {% for ix in intersections %}
+                    <option value="{{ ix.intersection_id }}" {% if ix.id == default_ix.id %}selected{% endif %}>
+                        {{ ix.intersection_id }}
+                    </option>
+                    {% endfor %}
+                </select>
+                <div class="preset-btn-row">
+                    <button type="button" class="preset-btn active" onclick="selectPreset('Electronic City::Silk Board Junction')">⭐ Silk Board (Demo)</button>
+                    <button type="button" class="preset-btn" onclick="selectPreset('Hebbal::Hebbal Flyover')">Hebbal Flyover</button>
+                    <button type="button" class="preset-btn" onclick="selectPreset('Koramangala::Sony World Junction')">Sony World Junc.</button>
+                    <button type="button" class="preset-btn" onclick="selectPreset('Indiranagar::100 Feet Road')">100 Feet Road</button>
+                </div>
+            </div>
+
+            <!-- Current Green Duration -->
+            <div class="control-group">
+                <div class="control-label">
+                    <span>Current Green Duration</span>
+                    <span id="current-green-display" style="color:#94a3b8; font-family:'JetBrains Mono';">45s</span>
+                </div>
+                <div style="background:#0f172a; padding:8px 12px; border-radius:8px; border:1px solid #1e293b; font-size:0.85rem; color:#cbd5e1;">
+                    Active Phase Timer: <strong id="lbl-active-green" style="color:#38bdf8;">45 seconds</strong> &bull; Cycle Ratio: 45/90s
+                </div>
+            </div>
+
+            <!-- Proposed Green Timing Slider -->
+            <div class="control-group">
+                <div class="control-label">
+                    <span>Proposed Green Duration</span>
+                    <span style="color:#38bdf8; font-size:0.75rem;">Adjust timing to test</span>
+                </div>
+                <div class="range-slider-wrap">
+                    <input type="range" id="proposed-slider" class="range-slider" min="30" max="75" step="5" value="60" oninput="updateProposedDisplay(this.value)">
+                    <div class="slider-val-box" id="proposed-val-box">60s</div>
+                </div>
+                <div style="display:flex; justify-content:space-between; font-size:0.7rem; color:#64748b; margin-top:4px;">
+                    <span>30s (Min Safe)</span>
+                    <span>45s (Standard)</span>
+                    <span>60s (Surge)</span>
+                    <span>75s (Max Safe)</span>
+                </div>
+            </div>
+
+            <!-- Simulation Duration -->
+            <div class="control-group">
+                <div class="control-label">
+                    <span>Simulation Horizon</span>
+                    <span style="color:#94a3b8;">Forward Lookahead</span>
+                </div>
+                <select id="sim-duration" class="control-select">
+                    <option value="15" selected>15 Minutes (Micro Platoon Window)</option>
+                    <option value="30">30 Minutes (Corridor Progression)</option>
+                    <option value="60">60 Minutes (Peak Hour Sustained)</option>
+                </select>
+            </div>
+
+            <!-- Primary Buttons -->
+            <button type="button" class="btn-simulate" onclick="runImpactSimulation()">
+                <span>⚡</span> SIMULATE IMPACT
+            </button>
+            <button type="button" class="btn-optimize" onclick="runNetworkOptimizer()">
+                <span>🌐</span> OPTIMIZE NETWORK
+            </button>
+
+            <!-- Strategy Comparison Card -->
+            <div style="margin-top:1.25rem; background:#0f172a; border:1px solid #1e293b; border-radius:10px; padding:10px;">
+                <div style="font-size:0.8rem; font-weight:700; color:#94a3b8; margin-bottom:6px; display:flex; justify-content:space-between;">
+                    <span>STRATEGY COMPARISON</span>
+                    <button class="preset-btn" style="padding:2px 6px;" onclick="saveCurrentAsStrategy()">Save Strategy</button>
+                </div>
+                <div id="strategy-compare-body" style="font-size:0.75rem; color:#64748b;">
+                    No strategies saved yet. Click "Save Strategy" to bookmark alternative timing options.
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Right Column: Results, Ripple Model, AI Explanation & Approval -->
+        <div>
+            
+            <!-- Before vs After Metrics Panel -->
+            <div class="dc-card" style="margin-bottom:1.5rem;">
+                <div class="dc-card-title">
+                    <span>Impact Forecast: Current State vs. Simulated State</span>
+                    <span id="sim-status-badge" class="badge-outcome badge-improved" style="background:#1e3a8a; color:#93c5fd;">READY TO SIMULATE</span>
+                </div>
+
+                <!-- Attribution Tags -->
+                <div class="attribution-row">
+                    <span class="attr-tag attr-actual">📊 Actual Measured (core_trafficdata)</span>
+                    <span class="attr-tag attr-ml">🧠 ML Prediction (impact_regressor.pkl)</span>
+                    <span class="attr-tag attr-sim">⚙️ Simulation Result (IntelliFlow 2.0)</span>
+                    <span class="attr-tag attr-heuristic">📐 Heuristic (Webster & Greenshields)</span>
+                </div>
+
+                <!-- 4 Metrics Compare Boxes -->
+                <div class="comparison-grid">
+                    <div class="metric-box">
+                        <div class="metric-title">Queue Length</div>
+                        <div class="metric-val-compare">
+                            <span class="val-before" id="m-queue-before">115</span>
+                            <span class="val-after" id="m-queue-after">92</span>
+                            <span style="font-size:0.8rem; color:#94a3b8;">veh</span>
+                        </div>
+                        <div class="metric-delta delta-good" id="m-queue-delta">-20.0%</div>
+                    </div>
+
+                    <div class="metric-box">
+                        <div class="metric-title">Average Delay</div>
+                        <div class="metric-val-compare">
+                            <span class="val-before" id="m-delay-before">58.0</span>
+                            <span class="val-after" id="m-delay-after">47.5</span>
+                            <span style="font-size:0.8rem; color:#94a3b8;">s</span>
+                        </div>
+                        <div class="metric-delta delta-good" id="m-delay-delta">-18.1%</div>
+                    </div>
+
+                    <div class="metric-box">
+                        <div class="metric-title">Throughput</div>
+                        <div class="metric-val-compare">
+                            <span class="val-before" id="m-tp-before">21,400</span>
+                            <span class="val-after" id="m-tp-after">23,800</span>
+                            <span style="font-size:0.8rem; color:#94a3b8;">v/h</span>
+                        </div>
+                        <div class="metric-delta delta-good" id="m-tp-delta">+11.2%</div>
+                    </div>
+
+                    <div class="metric-box">
+                        <div class="metric-title">Congestion Index</div>
+                        <div class="metric-val-compare">
+                            <span class="val-before" id="m-cong-before">74</span>
+                            <span class="val-after" id="m-cong-after">63</span>
+                            <span style="font-size:0.8rem; color:#94a3b8;">/100</span>
+                        </div>
+                        <div class="metric-delta delta-good" id="m-cong-delta">-14.8%</div>
+                    </div>
+                </div>
+
+                <!-- Network Ripple Model Visualization (Feature 2) -->
+                <div class="ripple-board">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                        <span style="font-size:0.85rem; font-weight:700; color:#38bdf8;">NETWORK RIPPLE & CONGESTION TRANSFER MODEL (A &rarr; B &rarr; C)</span>
+                        <span id="spillback-indicator" style="font-size:0.75rem; font-weight:700; color:#10b981;">SAFE: NO DOWNSTREAM SPILLBACK</span>
+                    </div>
+                    <div id="ripple-node-container" class="ripple-node-list">
+                        <!-- Populated by JS -->
+                    </div>
+                </div>
+
+                <!-- AI Explanation Engine (Feature 8) -->
+                <div class="explanation-box" id="explanation-container">
+                    <div class="explanation-title">
+                        <span>💡</span>
+                        <span id="explanation-heading">AI Recommendation & Rationale Engine</span>
+                    </div>
+                    <ul class="explanation-list" id="explanation-bullets">
+                        <li>Predicted traffic volume indicates evening peak saturation (+14% vs historical mean).</li>
+                        <li>Current queue is 24% above approach storage threshold. Extending green phase discharges accumulated platoon.</li>
+                        <li>Neighboring arterial node (Madiwala / Koramangala) has sufficient buffer capacity to absorb increased outflow.</li>
+                    </ul>
+                    <div style="margin-top:10px; display:flex; align-items:center; gap:16px; font-size:0.8rem; color:#94a3b8;">
+                        <span>Confidence Score: <strong id="lbl-confidence" style="color:#10b981;">84.5%</strong></span>
+                        <span>Estimated Travel Time: <strong id="lbl-travel-time" style="color:#38bdf8;">-2.4 min</strong></span>
+                        <span>Safety Envelope: <strong style="color:#6ee7b7;">30–75s Compliant</strong></span>
+                    </div>
+                </div>
+
+                <!-- Human-in-the-Loop Safety Controls (Feature 9) -->
+                <div class="approval-panel">
+                    <div style="flex:1;">
+                        <div style="font-weight:700; color:#f8fafc; font-size:0.9rem;">Human Operator Final Decision</div>
+                        <div style="font-size:0.75rem; color:#94a3b8;">Review simulated outcomes before applying changes to physical signal controller.</div>
+                    </div>
+                    <button type="button" class="btn-approve" onclick="applyDecision()">
+                        <span>✅</span> APPROVE & APPLY
+                    </button>
+                    <button type="button" class="btn-reject" onclick="rejectDecision()">
+                        <span>❌</span> REJECT
+                    </button>
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- AI LEARNING HISTORY & CONTINUOUS RETRAINING (Feature 4 & Feature 6) -->
+    <div class="dc-card">
+        <div class="dc-card-title">
+            <div style="display:flex; align-items:center; gap:8px;">
+                <span>AI Learning History & Self-Correction Feedback Loop</span>
+                <span class="badge-outcome badge-improved" style="background:#065f46; color:#a7f3d0;">FEATURE 4 & 6 ⭐</span>
+            </div>
+            <div style="display:flex; gap:8px;">
+                <button type="button" class="preset-btn" onclick="triggerSafeRetrain()" style="background:#4338ca; color:#fff; border-color:#6366f1;">
+                    🔄 TRIGGER SAFE RETRAINING
+                </button>
+            </div>
+        </div>
+
+        <!-- Performance Summary KPIs -->
+        <div style="display:grid; grid-template-columns:repeat(4, 1fr); gap:10px; margin-bottom:1rem;">
+            <div class="metric-box">
+                <div class="metric-title">Decisions Recorded</div>
+                <div style="font-size:1.4rem; font-weight:800; color:#f8fafc;" id="lbl-total-exps">{{ total_exp_count }}</div>
+                <div style="font-size:0.7rem; color:#94a3b8;">Self-learning samples</div>
+            </div>
+            <div class="metric-box">
+                <div class="metric-title">Improvement Rate</div>
+                <div style="font-size:1.4rem; font-weight:800; color:#10b981;" id="lbl-improve-rate">{{ improvement_rate }}%</div>
+                <div style="font-size:0.7rem; color:#94a3b8;">{{ improved_count }} positive outcomes</div>
+            </div>
+            <div class="metric-box">
+                <div class="metric-title">Mean Queue Error</div>
+                <div style="font-size:1.4rem; font-weight:800; color:#38bdf8;" id="lbl-mean-error">4.2 veh</div>
+                <div style="font-size:0.7rem; color:#94a3b8;">Actual vs. Predicted</div>
+            </div>
+            <div class="metric-box">
+                <div class="metric-title">Active Model Version</div>
+                <div style="font-size:1.0rem; font-weight:800; color:#a855f7;" id="lbl-model-ver">v2.0-impact_regressor</div>
+                <div style="font-size:0.7rem; color:#94a3b8;">Multi-Output Random Forest</div>
+            </div>
+        </div>
+
+        <!-- Experience Logs Table -->
+        <div style="overflow-x:auto;">
+            <table class="history-table">
+                <thead>
+                    <tr>
+                        <th>Timestamp</th>
+                        <th>Intersection</th>
+                        <th>Timing Shift</th>
+                        <th>Predicted Queue</th>
+                        <th>Actual Queue</th>
+                        <th>Error (Vehicles)</th>
+                        <th>Congestion Change</th>
+                        <th>Outcome</th>
+                        <th>Notes / Rationale</th>
+                    </tr>
+                </thead>
+                <tbody id="experience-table-body">
+                    {% for exp in recent_experiences %}
+                    <tr>
+                        <td>{{ exp.timestamp|date:"Y-m-d H:i" }}</td>
+                        <td><strong>{{ exp.intersection.intersection_id }}</strong></td>
+                        <td><span style="font-family:'JetBrains Mono'; color:#38bdf8;">{{ exp.previous_green_seconds }}s &rarr; {{ exp.applied_green_seconds }}s</span></td>
+                        <td>{{ exp.predicted_queue|default:"--" }} veh</td>
+                        <td>{{ exp.actual_queue|default:"--" }} veh</td>
+                        <td style="font-family:'JetBrains Mono'; font-weight:700; color:{% if exp.queue_error and exp.queue_error < 0 %}#34d399{% else %}#f87171{% endif %};">
+                            {{ exp.queue_error|default:"0.0" }}
+                        </td>
+                        <td>{{ exp.actual_congestion|default:"--" }} / 100</td>
+                        <td>
+                            <span class="badge-outcome {% if exp.outcome == 'IMPROVED' %}badge-improved{% elif exp.outcome == 'DEGRADED' %}badge-degraded{% else %}badge-neutral{% endif %}">
+                                {{ exp.outcome }}
+                            </span>
+                        </td>
+                        <td style="font-size:0.75rem; color:#94a3b8;">{{ exp.operator_notes|truncatechars:45 }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr><td colspan="9" style="text-align:center; color:#64748b;">No control experience recorded yet.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+    </div>
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Load Injected Intersection Data
+const intersectionData = {{ ix_data_json|safe }};
+let currentSimulationData = null;
+let savedStrategies = [];
+
+function getSelectedIntersection() {
+    const sel = document.getElementById('ix-selector');
+    return intersectionData.find(i => i.intersection_id === sel.value);
+}
+
+function updateProposedDisplay(val) {
+    document.getElementById('proposed-val-box').textContent = val + 's';
+}
+
+function onIntersectionChange() {
+    const ix = getSelectedIntersection();
+    if (!ix) return;
+    document.getElementById('cur-area-label').textContent = ix.area;
+    document.getElementById('current-green-display').textContent = ix.current_green + 's';
+    document.getElementById('lbl-active-green').textContent = ix.current_green + ' seconds';
+    
+    // Default proposed +15s up to 75
+    const defProp = Math.min(75, ix.current_green + 15);
+    document.getElementById('proposed-slider').value = defProp;
+    updateProposedDisplay(defProp);
+}
+
+function selectPreset(ixId) {
+    const sel = document.getElementById('ix-selector');
+    sel.value = ixId;
+    onIntersectionChange();
+    runImpactSimulation();
+}
+
+// 1. Run Impact Simulation (Feature 1 & Feature 2)
+async function runImpactSimulation() {
+    const ix = getSelectedIntersection();
+    if (!ix) return;
+
+    const proposedG = parseInt(document.getElementById('proposed-slider').value, 10);
+    const duration = parseInt(document.getElementById('sim-duration').value, 10);
+    const btn = document.querySelector('.btn-simulate');
+    btn.innerHTML = '<span>⏳</span> SIMULATING...';
+    btn.disabled = true;
+
+    try {
+        const resp = await fetch('/signals/api/simulate-impact/', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                intersection_id: ix.intersection_id,
+                current_green: ix.current_green,
+                proposed_green: proposedG,
+                duration_minutes: duration,
+            })
+        });
+
+        const json = await resp.json();
+        if (json.status === 'success') {
+            currentSimulationData = json.data;
+            renderSimulationResults(json.data);
+            showToast('Simulation complete for ' + ix.road, 'success');
+        } else {
+            showToast('Simulation error: ' + (json.error || 'Failed'), 'danger');
+        }
+    } catch (e) {
+        console.error(e);
+        showToast('Network error during simulation', 'danger');
+    } finally {
+        btn.innerHTML = '<span>⚡</span> SIMULATE IMPACT';
+        btn.disabled = false;
+    }
+}
+
+// Render Results into UI
+function renderSimulationResults(data) {
+    const base = data.baseline_metrics;
+    const sim = data.simulated_metrics;
+    const delta = data.delta_metrics;
+    const ripple = data.ripple_impact;
+    const explanation = data.ai_explanation;
+
+    // Metrics
+    document.getElementById('m-queue-before').textContent = Math.round(base.queue_length_vehicles);
+    document.getElementById('m-queue-after').textContent = Math.round(sim.queue_length_vehicles);
+    setDelta('m-queue-delta', delta.queue_change_pct, '%', true);
+
+    document.getElementById('m-delay-before').textContent = base.average_delay_seconds.toFixed(1);
+    document.getElementById('m-delay-after').textContent = sim.average_delay_seconds.toFixed(1);
+    setDelta('m-delay-delta', delta.delay_change_pct, '%', true);
+
+    document.getElementById('m-tp-before').textContent = Math.round(base.throughput_veh_hr).toLocaleString();
+    document.getElementById('m-tp-after').textContent = Math.round(sim.throughput_veh_hr).toLocaleString();
+    setDelta('m-tp-delta', delta.throughput_change_pct, '%', false);
+
+    document.getElementById('m-cong-before').textContent = Math.round(base.congestion_level_index);
+    document.getElementById('m-cong-after').textContent = Math.round(sim.congestion_level_index);
+    setDelta('m-cong-delta', delta.congestion_change_pct, '%', true);
+
+    // Ripple effect
+    const rippleContainer = document.getElementById('ripple-node-container');
+    rippleContainer.innerHTML = '';
+    
+    if (ripple.directly_affected && ripple.directly_affected.length > 0) {
+        ripple.directly_affected.forEach(node => {
+            const row = document.createElement('div');
+            row.className = 'ripple-node-row';
+            const sign = node.congestion_change_pct >= 0 ? '+' : '';
+            const color = node.congestion_change_pct <= 0 ? '#34d399' : (node.spillback_risk ? '#f87171' : '#fbbf24');
+            row.innerHTML = `
+                <div>
+                    <strong>${node.intersection_id}</strong>
+                    <div style="font-size:0.75rem; color:#94a3b8;">${node.corridor} &bull; ${node.distance_km} km downstream</div>
+                </div>
+                <div style="text-align:right;">
+                    <span style="font-family:'JetBrains Mono'; font-weight:700; color:${color}; font-size:0.95rem;">
+                        ${sign}${node.congestion_change_pct}%
+                    </span>
+                    <div style="font-size:0.7rem; color:#94a3b8;">
+                        ${node.spillback_risk ? '<span style="color:#ef4444; font-weight:700;">SPILLBACK WARNING</span>' : 'Queue: ' + (node.queue_change_veh >= 0 ? '+' : '') + node.queue_change_veh + ' veh'}
+                    </div>
+                </div>
+            `;
+            rippleContainer.appendChild(row);
+        });
+    } else {
+        rippleContainer.innerHTML = '<div style="color:#64748b; font-size:0.8rem;">No immediate downstream corridor links registered.</div>';
+    }
+
+    const spIndicator = document.getElementById('spillback-indicator');
+    if (ripple.spillback_detected) {
+        spIndicator.textContent = '⚠️ SPILLBACK ALERT: DOWNSTREAM CHOKE';
+        spIndicator.style.color = '#ef4444';
+    } else {
+        spIndicator.textContent = 'SAFE: NO DOWNSTREAM SPILLBACK';
+        spIndicator.style.color = '#10b981';
+    }
+
+    // AI Explanation
+    if (explanation) {
+        document.getElementById('explanation-heading').textContent = explanation.title;
+        const bContainer = document.getElementById('explanation-bullets');
+        bContainer.innerHTML = '';
+        explanation.why.forEach(item => {
+            const li = document.createElement('li');
+            li.textContent = item;
+            bContainer.appendChild(li);
+        });
+        document.getElementById('lbl-confidence').textContent = explanation.expected_result.confidence + '%';
+        document.getElementById('lbl-travel-time').textContent = (sim.travel_time_minutes - base.travel_time_minutes).toFixed(1) + ' min';
+    }
+
+    document.getElementById('sim-status-badge').textContent = 'SIMULATED (PROPOSED: ' + data.proposed_green_seconds + 's)';
+}
+
+function setDelta(id, val, suffix, lowerIsBetter) {
+    const el = document.getElementById(id);
+    const sign = val >= 0 ? '+' : '';
+    el.textContent = `${sign}${val}${suffix}`;
+    el.className = 'metric-delta';
+    if (val === 0) {
+        el.classList.add('delta-neutral');
+    } else if (lowerIsBetter ? val < 0 : val > 0) {
+        el.classList.add('delta-good');
+    } else {
+        el.classList.add('delta-bad');
+    }
+}
+
+// 2. Run Network Optimizer (Feature 3 & Feature 10)
+async function runNetworkOptimizer() {
+    const btn = document.querySelector('.btn-optimize');
+    btn.innerHTML = '<span>⏳</span> OPTIMIZING NETWORK...';
+    btn.disabled = true;
+
+    try {
+        const resp = await fetch('/signals/api/optimize-network/', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ emergency_priority: true })
+        });
+        const json = await resp.json();
+
+        if (json.status === 'success') {
+            showToast(`Network optimization complete! Projected total network delay reduction: ${json.delay_savings_pct}%`, 'success');
+            
+            // If current intersection is in recommendations, apply proposed green
+            const ix = getSelectedIntersection();
+            const rec = json.recommendations.find(r => r.intersection_id === ix.intersection_id);
+            if (rec) {
+                document.getElementById('proposed-slider').value = rec.optimized_green_seconds;
+                updateProposedDisplay(rec.optimized_green_seconds);
+                runImpactSimulation();
+            }
+        }
+    } catch (e) {
+        console.error(e);
+        showToast('Network optimizer failed', 'danger');
+    } finally {
+        btn.innerHTML = '<span>🌐</span> OPTIMIZE NETWORK';
+        btn.disabled = false;
+    }
+}
+
+// 3. Human-in-the-Loop [APPLY] (Feature 4 & Feature 9)
+async function applyDecision() {
+    if (!currentSimulationData) {
+        showToast('Please simulate impact first before approving.', 'warning');
+        return;
+    }
+
+    const ix = getSelectedIntersection();
+    const proposedG = parseInt(document.getElementById('proposed-slider').value, 10);
+
+    try {
+        const resp = await fetch('/signals/api/feedback/', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                intersection_id: ix.intersection_id,
+                previous_green: currentSimulationData.current_green_seconds,
+                applied_green: proposedG,
+                predicted_metrics: {
+                    queue: currentSimulationData.simulated_metrics.queue_length_vehicles,
+                    delay: currentSimulationData.simulated_metrics.average_delay_seconds,
+                    volume: currentSimulationData.simulated_metrics.traffic_volume_veh_hr,
+                    congestion: currentSimulationData.simulated_metrics.congestion_level_index,
+                },
+                operator_notes: 'Approved via Decision Center. Rationale: Discharging peak approach queue.'
+            })
+        });
+
+        const json = await resp.json();
+        if (json.status === 'success') {
+            showToast('Signal timing applied and experience logged into Self-Learning Loop!', 'success');
+            
+            // Update local memory & UI
+            ix.current_green = proposedG;
+            document.getElementById('current-green-display').textContent = proposedG + 's';
+            document.getElementById('lbl-active-green').textContent = proposedG + ' seconds';
+
+            // Refresh learning history table
+            refreshLearningHistory();
+        } else {
+            showToast('Error applying decision: ' + json.error, 'danger');
+        }
+    } catch (e) {
+        console.error(e);
+        showToast('Network error applying decision', 'danger');
+    }
+}
+
+function rejectDecision() {
+    showToast('Decision rejected by operator. No changes applied.', 'info');
+}
+
+// Save Strategy comparison
+function saveCurrentAsStrategy() {
+    if (!currentSimulationData) {
+        showToast('Simulate an impact first before saving.', 'warning');
+        return;
+    }
+    const propG = currentSimulationData.proposed_green_seconds;
+    const qDelta = currentSimulationData.delta_metrics.queue_change_pct;
+    const dDelta = currentSimulationData.delta_metrics.delay_change_pct;
+
+    savedStrategies.push({ green: propG, queue: qDelta, delay: dDelta });
+    const compBox = document.getElementById('strategy-compare-body');
+    compBox.innerHTML = savedStrategies.map((s, idx) => `
+        <div style="display:flex; justify-content:space-between; margin-bottom:4px; background:#1e293b; padding:4px 8px; border-radius:4px;">
+            <span>Strategy ${String.fromCharCode(65 + idx)} (${s.green}s):</span>
+            <span style="font-family:'JetBrains Mono'; color:#38bdf8;">Queue: ${s.queue}% | Delay: ${s.delay}%</span>
+        </div>
+    `).join('');
+    showToast('Strategy bookmarked for comparison!', 'success');
+}
+
+// Refresh Learning History Table
+async function refreshLearningHistory() {
+    try {
+        const resp = await fetch('/signals/api/learning-performance/');
+        const json = await resp.json();
+        if (json.status === 'success') {
+            document.getElementById('lbl-total-exps').textContent = json.summary.total_experiences;
+            document.getElementById('lbl-improve-rate').textContent = json.summary.improvement_rate_pct + '%';
+            document.getElementById('lbl-mean-error').textContent = json.summary.mean_abs_queue_error_vehicles + ' veh';
+
+            const tbody = document.getElementById('experience-table-body');
+            tbody.innerHTML = '';
+            json.experiences.slice(0, 10).forEach(exp => {
+                const tr = document.createElement('tr');
+                const errColor = exp.queue_error < 0 ? '#34d399' : '#f87171';
+                tr.innerHTML = `
+                    <td>${exp.timestamp}</td>
+                    <td><strong>${exp.intersection_id}</strong></td>
+                    <td><span style="font-family:'JetBrains Mono'; color:#38bdf8;">${exp.previous_green_seconds}s &rarr; ${exp.applied_green_seconds}s</span></td>
+                    <td>${exp.predicted_queue || '--'} veh</td>
+                    <td>${exp.actual_queue || '--'} veh</td>
+                    <td style="font-family:'JetBrains Mono'; font-weight:700; color:${errColor};">${exp.queue_error || '0.0'}</td>
+                    <td>${exp.actual_congestion || '--'} / 100</td>
+                    <td>
+                        <span class="badge-outcome ${exp.outcome === 'IMPROVED' ? 'badge-improved' : (exp.outcome === 'DEGRADED' ? 'badge-degraded' : 'badge-neutral')}">
+                            ${exp.outcome}
+                        </span>
+                    </td>
+                    <td style="font-size:0.75rem; color:#94a3b8;">${exp.operator_notes || ''}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+    } catch (e) {
+        console.error(e);
+    }
+}
+
+// Trigger Safe Retraining (Feature 6)
+async function triggerSafeRetrain() {
+    showToast('Starting safe candidate model retraining...', 'info');
+    try {
+        const resp = await fetch('/signals/api/retrain/', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ min_new_samples: 1 })
+        });
+        const json = await resp.json();
+        if (json.status === 'success') {
+            showToast(json.message, json.promoted ? 'success' : 'warning');
+            refreshLearningHistory();
+        } else {
+            showToast('Retraining status: ' + json.message, 'info');
+        }
+    } catch (e) {
+        console.error(e);
+        showToast('Retraining request failed', 'danger');
+    }
+}
+
+// Refresh Anomalies
+async function refreshAnomalies() {
+    try {
+        const resp = await fetch('/signals/api/anomalies/');
+        const json = await resp.json();
+        if (json.status === 'success') {
+            const count = json.realtime_scanned_count;
+            document.getElementById('anomaly-text').textContent = `Live Anomaly Scan: ${count} Abnormal Flow Cluster(s) Flagged across Bengaluru network`;
+            showToast(`Anomaly scan complete. ${count} anomalies active.`, 'info');
+        }
+    } catch (e) {
+        console.error(e);
+    }
+}
+
+// Initialize on page load
+document.addEventListener('DOMContentLoaded', () => {
+    onIntersectionChange();
+    runImpactSimulation();
+});
+</script>
+{% endblock %}

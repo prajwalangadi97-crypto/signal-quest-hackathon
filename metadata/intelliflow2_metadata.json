@@ -1,0 +1,74 @@
+{
+  "version": "2.0.0",
+  "pipeline": "IntelliFlow 2.0 Self-Learning Decision Engine",
+  "trained_at": "2026-09-26T13:18:54.438027",
+  "dataset": "Banglore_traffic_Dataset.csv",
+  "models": {
+    "impact_regressor": {
+      "path": "models/impact/impact_regressor.pkl",
+      "features": [
+        "vehicle_count",
+        "avg_speed",
+        "travel_time_index",
+        "capacity_utilization",
+        "incident_reports",
+        "signal_compliance",
+        "current_green",
+        "proposed_green",
+        "delta_green",
+        "green_ratio"
+      ],
+      "metrics": {
+        "sim_queue_len": {
+          "MAE": 1.457,
+          "RMSE": 4.4903,
+          "R2": 0.9969
+        },
+        "sim_delay_sec": {
+          "MAE": 0.5493,
+          "RMSE": 0.9772,
+          "R2": 0.9947
+        },
+        "sim_throughput": {
+          "MAE": 848.1428,
+          "RMSE": 1386.7257,
+          "R2": 0.9949
+        },
+        "sim_congestion": {
+          "MAE": 2.7714,
+          "RMSE": 4.3864,
+          "R2": 0.9639
+        }
+      }
+    },
+    "anomaly_detector": {
+      "path": "models/anomaly/anomaly_detector.pkl",
+      "features": [
+        "vehicle_count",
+        "avg_speed",
+        "travel_time_index",
+        "capacity_utilization",
+        "incident_reports"
+      ],
+      "metrics": {
+        "contamination": 0.05,
+        "flagged_count": 447,
+        "records_total": 8936
+      }
+    },
+    "ripple_predictor": {
+      "path": "models/optimizer/ripple_predictor.pkl",
+      "features": [
+        "upstream_delta_g",
+        "upstream_volume",
+        "link_distance_km",
+        "downstream_occupancy"
+      ],
+      "metrics": {
+        "MAE": 0.4929,
+        "RMSE": 0.6399,
+        "R2": 0.9872
+      }
+    }
+  }
+}

@@ -29,16 +29,77 @@ Traditional traffic lights operate on rigid, pre-programmed timers that cannot a
 
 ---
 
+## ⚡ INTELLIFLOW 2.0: Self-Learning Predictive Traffic Decision Engine
+
+> **The Hackathon Breakthrough**: Upgrading IntelliFlow from a reactive prediction dashboard to a **closed-loop autonomous self-learning decision engine**.
+
+```
+DATA ➔ PREDICT ➔ SIMULATE ➔ OPTIMIZE ➔ HUMAN APPROVAL ➔ APPLY ➔ OBSERVE ➔ COMPARE ➔ LEARN ➔ IMPROVE FUTURE DECISIONS
+```
+
+### The 10 Core IntelliFlow 2.0 Capabilities
+
+1. **Traffic Impact Simulator (Feature 1)**:
+   - Operators select an intersection, current timing, proposed green timing, and lookahead horizon.
+   - Evaluates resulting **Queue Length**, **Average Delay**, **Volume**, **Throughput**, and **Congestion Index**.
+   - Compares **Current State vs. Simulated State**.
+   - Explicitly attributes data sources: `Actual Measured (core_trafficdata)`, `ML Prediction (impact_regressor.pkl)`, `Simulation Result (IntelliFlow 2.0)`, and `Heuristic (Webster & Greenshields)`.
+
+2. **Network Ripple & Congestion Transfer Model (Feature 2)**:
+   - Models directional arterial graphs across Bengaluru (e.g., *Silk Board ➔ Madiwala ➔ Koramangala*).
+   - Estimates how timing shifts at Node A propagate flow changes to 1-hop and 2-hop downstream neighbors.
+   - Detects **Spillback Risks** when local green extensions flood downstream junctions with insufficient absorption capacity.
+
+3. **Network-Level Signal Optimizer (Feature 3)**:
+   - Supports *"Optimize Network"* across multiple connected intersections simultaneously within the safe [30, 75]s band.
+   - Uses constrained evolutionary search minimizing the global objective:
+     $$\min_{\mathbf{G}} J(\mathbf{G}) = \sum_{i \in \mathcal{V}} \left[ w_d D_i(\mathbf{G}) + w_q Q_i(\mathbf{G}) + w_c C_i(\mathbf{G}) + w_{\text{spill}} \text{SpillbackPenalty}_i(\mathbf{G}) \right] + w_{\text{emerg}} \text{EmergencyPenalty}(\mathbf{G})$$
+
+4. **Self-Learning Feedback Loop ⭐ (Feature 4)**:
+   - Records every decision applied by operators into the `TrafficControlExperience` database table.
+   - Calculates prediction error: $\text{Error} = \text{Actual} - \text{Predicted}$.
+   - Dynamically computes online calibration bias offsets per intersection to continuously refine future predictions.
+
+5. **Dedicated Model Training Pipeline (Feature 5)**:
+   - Completely separate training pipeline (`train_intelliflow2_models.py`) that preserves existing baseline models.
+   - Trains Multi-Output Impact Regressor (`models/impact/impact_regressor.pkl`, $R^2 = 0.995$).
+   - Trains Isolation Forest Anomaly Detector (`models/anomaly/anomaly_detector.pkl`).
+   - Trains Network Ripple Predictor (`models/optimizer/ripple_predictor.pkl`, $R^2 = 0.987$).
+
+6. **Safe Online / Periodic Model Retraining (Feature 6)**:
+   - Integrates new verified feedback experiences with historical training data.
+   - Enforces a **Strict Safety Promotion Gate**: Candidate models must achieve $R^2 \ge 0.85$, Queue MAE $\le 6.0$ vehicles, and Delay MAE $\le 5.0$s before replacing the active production model.
+   - Logs model versioning metadata into `ModelVersion`.
+
+7. **Traffic Anomaly Detection (Feature 7)**:
+   - Scans sensor streams for abnormal traffic surges, severe bottlenecks, or sensor faults.
+   - Flags anomalies with Severity (`LOW`, `MEDIUM`, `HIGH`, `CRITICAL`), Location, Confidence %, and supporting Z-scores.
+
+8. **AI Explanation Engine (Feature 8)**:
+   - Generates transparent, data-grounded explanations: *"Why?"* (volume trend, queue vs capacity, neighbor buffer) and *"Expected Result"* (queue change %, network delay %, throughput %, confidence %).
+
+9. **Human-in-the-Loop Safety (Feature 9)**:
+   - Operators retain full supervisory control with `[SIMULATE IMPACT]`, `[APPROVE & APPLY]`, and `[REJECT]` buttons.
+   - Strict 30s to 75s safety limits are hard-enforced.
+
+10. **Emergency-Aware Network Optimization (Feature 10)**:
+    - Jointly optimizes emergency corridor clearance with minimal secondary urban grid disruption.
+    - Forces priority green waves along ambulance paths while dynamically adjusting surrounding nodes to absorb diverted traffic.
+
+---
+
 ## 📸 System Screenshots
 
-### 1. Operations Dashboard
+### 1. Predictive Traffic Decision Center (IntelliFlow 2.0)
+*Interactive decision interface featuring live anomaly alerts, signal timing controls, before-vs-after comparison, network ripple model, AI explanation, and self-learning experience history.*
+![Predictive Traffic Decision Center](report_assets/decision_center.png)
+
+### 2. Operations Dashboard
 *Real-time Bengaluru weather telemetry, city volume trend, 4-tier congestion breakdown, live alert ticker, and control actions bar.*
 ![Operations Dashboard](https://raw.githubusercontent.com/prajwalangadi97-crypto/signal-quest-hackathon/main/dashboard_screenshot.png)
 
-### 2. Live Geospatial Heatmap & Node Inspection
-*High-resolution Esri ArcGIS dark map tracking 16 major Bengaluru traffic nodes with color-coded congestion severity and popup telemetry.*
-
 ---
+
 
 ## 🏗️ Architecture & Technical Stack
 
@@ -298,19 +359,39 @@ Or using Django's test runner:
 python manage.py test
 ```
 
-**Expected output:**
+**Full Test Suite Execution (All 17 Tests Passing):**
+```bash
+python manage.py test
 ```
-============================= test session starts =============================
-collected 8 items
 
-tests\test_core.py ........                                              [100%]
-============================== 8 passed in 9.8s ===============================
+```
+Creating test database for alias 'default'...
+.................
+----------------------------------------------------------------------
+Ran 17 tests in 29.830s
+
+OK
+Destroying test database for alias 'default'...
+Found 17 test(s).
+System check identified no issues (0 silenced).
 ```
 
 ---
 
 ## 🌐 REST API Reference
 
+### IntelliFlow 2.0 Autonomous Decision & Learning APIs
+| Endpoint | Method | Description |
+| :--- | :---: | :--- |
+| `/signals/api/simulate-impact/` | `POST` | Runs impact simulation for proposed green timing, returning queue, delay, throughput, and ripple effects |
+| `/signals/api/optimize-network/` | `POST` | Executes constrained multi-intersection evolutionary optimization across arterial corridors |
+| `/signals/api/impact-history/` | `GET` | Fetches historical simulation logs and before/after comparisons |
+| `/signals/api/learning-performance/` | `GET` | Returns self-learning experience metrics, prediction error distribution, and model improvement % |
+| `/signals/api/anomalies/` | `GET` | Returns real-time scanned and persisted traffic anomalies across the city network |
+| `/signals/api/feedback/` | `POST` | Human-in-the-loop approval: applies signal timing, logs `TrafficControlExperience`, and updates online bias |
+| `/signals/api/retrain/` | `POST` | Triggers safe online candidate model retraining with automated validation gate and versioning |
+
+### Core System APIs
 | Endpoint | Method | Description |
 | :--- | :---: | :--- |
 | `/api/predictions/latest/` | `GET` | Returns forecasted congestion, class, volume, and green times for all nodes |
@@ -323,14 +404,41 @@ tests\test_core.py ........                                              [100%]
 
 ---
 
-## 🏆 Hackathon Highlights
+## 🎯 Step-by-Step Judge Demo Walkthrough
 
-- **Zero-Friction Access**: Removed authentication friction to deliver an instant, live demo experience.
-- **Complete End-to-End Flow**: Ingestion ➔ Feature Engineering ➔ Dual ML Inference ➔ Dynamic Signal Control ➔ Geospatial Visualization ➔ Real-Time WebSockets.
-- **Enterprise-Grade UI**: Custom cyberpunk dark UI with live ticking operation clock, dynamic font scaler (`A- / A+`), audio feedback, and interactive control actions.
-- **Production-Ready ML Registry**: Handles corrupt models gracefully, falling back to volume-based heuristics without crashing the server.
+Follow this sequence to showcase the closed-loop decision architecture:
+
+1. **Open the Decision Center**: Navigate to `http://127.0.0.1:8000/signals/decision-center/`.
+2. **Observe Anomaly Alerts**: Notice the top banner displaying real-time scanned traffic anomaly clusters.
+3. **Select Target Intersection**: Choose `Electronic City::Silk Board Junction` (or click the quick preset button).
+4. **Inspect Current State**: Review the current green duration (e.g. 45s or 60s) and baseline congestion metrics.
+5. **Adjust Proposed Timing**: Move the proposed green duration slider to `60s`.
+6. **Click `[⚡ SIMULATE IMPACT]`**:
+   - Observe instantaneous population of **Queue Length**, **Average Delay**, **Throughput**, and **Congestion Index**.
+   - Notice the explicit data attribution tags (`Actual Measured`, `ML Prediction`, `Simulation Result`, `Heuristic`).
+7. **Inspect the Network Ripple Model**:
+   - Review downstream corridor impact on *Hosur Road*, *Sony World Junction*, and *Jayanagar 4th Block*.
+   - Check the **Spillback Indicator** (`SAFE: NO DOWNSTREAM SPILLBACK`).
+8. **Bookmark Strategy A**: Click `Save Strategy` to record the 60s plan.
+9. **Simulate Strategy B**: Adjust slider to `50s`, click `SIMULATE IMPACT`, and click `Save Strategy`. Compare both in the Strategy Comparison bar.
+10. **Click `[🌐 OPTIMIZE NETWORK]`**:
+    - The evolutionary optimizer evaluates multi-intersection corridor combinations, converging on the global minimum delay plan (e.g., 65s for Silk Board).
+11. **Human-in-the-Loop Approval**: Click `[✅ APPROVE & APPLY]`.
+    - Physical signal duration updates immediately.
+    - An experience record is created in the database.
+12. **Review AI Learning History**:
+    - Scroll to the bottom table to see the newly logged decision with Predicted vs. Actual values and Error delta.
+13. **Demonstrate Model Self-Correction**: Click `[🔄 TRIGGER SAFE RETRAINING]`.
+    - The engine loads historical data + feedback, trains candidate model `v2.x`, runs validation ($R^2 \ge 0.85$), and safely promotes the candidate to active production!
+
+---
+
+## 🔒 Operational Framing & Honesty Statement
+
+> **Notice**: IntelliFlow 2.0 is an intelligent decision-support and closed-loop simulation prototype evaluated on 8,936 real-world empirical traffic observations from Bengaluru, Karnataka. While it integrates real-time CCTV vision and live Open-Meteo weather telemetry, signal actuations and downstream ripple projections are computed via mathematical and machine learning simulation models unless physically interfaced with certified field signal controllers (e.g., NEMA TS2 or SCATS relays).
 
 ---
 
 ## 📄 License
 This project is licensed under the MIT License — see the [LICENSE](LICENSE) file for details.
+
