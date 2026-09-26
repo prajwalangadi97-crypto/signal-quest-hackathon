@@ -98,7 +98,7 @@ class Command(BaseCommand):
             self.stdout.write("")
             for w in coord_warnings:
                 self.stdout.write(self.style.WARNING(
-                    f"  ⚠ coord_source != 'curated': {w}"
+                    f"  [WARN] coord_source != 'curated': {w}"
                 ))
 
         if dry_run:
@@ -225,9 +225,9 @@ class Command(BaseCommand):
         from features import MIN_HISTORY_DAYS
         if min_depth >= MIN_HISTORY_DAYS:
             self.stdout.write(self.style.SUCCESS(
-                f"  ✓ All intersections meet MIN_HISTORY_DAYS ({MIN_HISTORY_DAYS})"
+                f"  [OK] All intersections meet MIN_HISTORY_DAYS ({MIN_HISTORY_DAYS})"
             ))
         else:
             self.stdout.write(self.style.ERROR(
-                f"  ✗ Some intersections below MIN_HISTORY_DAYS ({MIN_HISTORY_DAYS})!"
+                f"  [FAIL] Some intersections below MIN_HISTORY_DAYS ({MIN_HISTORY_DAYS})!"
             ))

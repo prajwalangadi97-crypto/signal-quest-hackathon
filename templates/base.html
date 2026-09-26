@@ -12,7 +12,6 @@
     {% block extra_css %}{% endblock %}
 </head>
 <body>
-    {% if user.is_authenticated %}
     <div class="app-layout">
         <aside class="sidebar">
             <div class="sidebar-brand">
@@ -27,8 +26,10 @@
                 {% endfor %}
             </nav>
             <div class="sidebar-footer">
-                <span class="user-info">{{ user.username }} ({{ user.role }})</span>
-                <a href="{% url 'accounts:logout' %}" class="nav-item logout-link">Logout</a>
+                <span class="user-info" style="display:flex; align-items:center; gap:6px;">
+                    <span class="status-dot connected" style="display:inline-block; width:8px; height:8px;">&#9679;</span>
+                    {{ user.username|default:"Operator" }} &bull; Live System
+                </span>
             </div>
         </aside>
         <main class="main-content">
@@ -58,9 +59,6 @@
             </div>
         </main>
     </div>
-    {% else %}
-    {% block auth_content %}{% endblock %}
-    {% endif %}
     {% block extra_js %}{% endblock %}
 </body>
 </html>

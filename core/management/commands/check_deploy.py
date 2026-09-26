@@ -21,9 +21,9 @@ class Command(BaseCommand):
         ]:
             p = Path(path)
             if p.exists():
-                self.stdout.write(self.style.SUCCESS(f"  ✓ {label}: {p}"))
+                self.stdout.write(self.style.SUCCESS(f"  [OK] {label}: {p}"))
             else:
-                self.stdout.write(self.style.ERROR(f"  ✗ {label} missing: {p}"))
+                self.stdout.write(self.style.ERROR(f"  [FAIL] {label} missing: {p}"))
                 ok = False
 
         # 2. Check key files
@@ -38,9 +38,9 @@ class Command(BaseCommand):
         for f in key_files:
             p = Path(f)
             if p.exists():
-                self.stdout.write(self.style.SUCCESS(f"  ✓ {p.name}"))
+                self.stdout.write(self.style.SUCCESS(f"  [OK] {p.name}"))
             else:
-                self.stdout.write(self.style.ERROR(f"  ✗ Missing: {p}"))
+                self.stdout.write(self.style.ERROR(f"  [FAIL] Missing: {p}"))
                 ok = False
 
         # 3. Check registry loads
@@ -49,10 +49,10 @@ class Command(BaseCommand):
             registry.load()
 
         if registry.is_healthy():
-            self.stdout.write(self.style.SUCCESS("  ✓ Model registry healthy"))
+            self.stdout.write(self.style.SUCCESS("  [OK] Model registry healthy"))
         else:
             self.stdout.write(self.style.ERROR(
-                f"  ✗ Registry unhealthy: {registry.load_errors}"
+                f"  [FAIL] Registry unhealthy: {registry.load_errors}"
             ))
             ok = False
 
@@ -63,10 +63,10 @@ class Command(BaseCommand):
                 expected = json.load(f)
             if registry.feature_columns == expected:
                 self.stdout.write(self.style.SUCCESS(
-                    f"  ✓ Feature contract: {len(expected)} columns match"
+                    f"  [OK] Feature contract: {len(expected)} columns match"
                 ))
             else:
-                self.stdout.write(self.style.ERROR("  ✗ Feature columns mismatch!"))
+                self.stdout.write(self.style.ERROR("  [FAIL] Feature columns mismatch!"))
                 ok = False
 
         # 5. Database check
@@ -75,11 +75,11 @@ class Command(BaseCommand):
         td_count = TrafficData.objects.count()
         self.stdout.write(f"  Intersections: {ix_count}, TrafficData rows: {td_count}")
         if ix_count == 0:
-            self.stdout.write(self.style.WARNING("  ⚠ No intersections. Run seed_from_artifacts."))
+            self.stdout.write(self.style.WARNING("  [WARN] No intersections. Run seed_from_artifacts."))
 
         # Summary
         self.stdout.write("")
         if ok:
-            self.stdout.write(self.style.SUCCESS("  ✓ DEPLOYMENT CHECK PASSED"))
+            self.stdout.write(self.style.SUCCESS("  [OK] DEPLOYMENT CHECK PASSED"))
         else:
-            self.stdout.write(self.style.ERROR("  ✗ DEPLOYMENT CHECK FAILED"))
+            self.stdout.write(self.style.ERROR("  [FAIL] DEPLOYMENT CHECK FAILED"))

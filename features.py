@@ -380,7 +380,7 @@ def assert_no_leakage(feature_cols, verbose: bool = True) -> None:
     if bad:
         raise AssertionError(f"LEAKAGE: same-day target columns in X -> {bad}")
     if verbose:
-        print("   ✅ LEAKAGE CHECK PASSED — all signal columns are lagged or "
+        print("   [OK] LEAKAGE CHECK PASSED - all signal columns are lagged or "
               "known-in-advance")
 
 

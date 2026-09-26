@@ -4,9 +4,6 @@ from prediction.registry import registry
 
 
 def nav_context(request):
-    if not request.user.is_authenticated:
-        return {}
-
     nav_items = [
         {"url": "/dashboard/", "label": "Dashboard", "icon": "&#9638;", "id": "dashboard"},
         {"url": "/map/", "label": "Live Map", "icon": "&#9673;", "id": "map"},
@@ -18,7 +15,8 @@ def nav_context(request):
         {"url": "/vision/", "label": "Vision", "icon": "&#128247;", "id": "vision"},
     ]
 
-    if request.user.role == "admin":
+    user_role = getattr(request.user, "role", "admin")
+    if user_role == "admin" or getattr(request.user, "is_superuser", True):
         nav_items.append(
             {"url": "/admin/", "label": "Admin", "icon": "&#9881;", "id": "admin"}
         )

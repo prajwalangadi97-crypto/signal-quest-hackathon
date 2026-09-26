@@ -19,14 +19,18 @@ environ.Env.read_env(BASE_DIR / ".env")
 
 SECRET_KEY = env("SECRET_KEY")
 DEBUG = env("DEBUG")
-ALLOWED_HOSTS = env("ALLOWED_HOSTS")
+ALLOWED_HOSTS = env.list("ALLOWED_HOSTS", default=["localhost", "127.0.0.1"])
+if "testserver" not in ALLOWED_HOSTS:
+    ALLOWED_HOSTS.append("testserver")
 
 # --------------------------------------------------------------------------
 # ML path — so `from features import ...` works
 # --------------------------------------------------------------------------
-ML_DIR = BASE_DIR / "ml"
+ML_DIR = BASE_DIR / "ml" if (BASE_DIR / "ml").exists() else BASE_DIR
 if str(ML_DIR) not in sys.path:
     sys.path.insert(0, str(ML_DIR))
+if str(BASE_DIR) not in sys.path:
+    sys.path.insert(0, str(BASE_DIR))
 
 # --------------------------------------------------------------------------
 # Apps
@@ -62,6 +66,7 @@ MIDDLEWARE = [
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
+    "core.middleware.AutoLoginMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
@@ -128,9 +133,9 @@ connection_created.connect(_enable_wal)
 # Auth
 # --------------------------------------------------------------------------
 AUTH_USER_MODEL = "accounts.CustomUser"
-LOGIN_URL = "/accounts/login/"
-LOGIN_REDIRECT_URL = "/"
-LOGOUT_REDIRECT_URL = "/accounts/login/"
+LOGIN_URL = "/dashboard/"
+LOGIN_REDIRECT_URL = "/dashboard/"
+LOGOUT_REDIRECT_URL = "/dashboard/"
 
 AUTH_PASSWORD_VALIDATORS = [
     {"NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"},
@@ -147,7 +152,7 @@ REST_FRAMEWORK = {
         "rest_framework.authentication.SessionAuthentication",
     ],
     "DEFAULT_PERMISSION_CLASSES": [
-        "rest_framework.permissions.IsAuthenticated",
+        "rest_framework.permissions.AllowAny",
     ],
 }
 
@@ -193,7 +198,13 @@ ORS_API_KEY = env("ORS_API_KEY", default="")
 # --------------------------------------------------------------------------
 # ML Artifact paths
 # --------------------------------------------------------------------------
-ML_ARTIFACTS_DIR = ML_DIR / "artifacts"
-ML_MODELS_DIR = ML_ARTIFACTS_DIR / "models"
-ML_ENCODERS_DIR = ML_ARTIFACTS_DIR / "encoders"
-ML_METADATA_DIR = ML_ARTIFACTS_DIR / "metadata"
+if (BASE_DIR / "ml" / "artifacts").exists():
+    ML_ARTIFACTS_DIR = BASE_DIR / "ml" / "artifacts"
+elif (BASE_DIR / "artifacts").exists():
+    ML_ARTIFACTS_DIR = BASE_DIR / "artifacts"
+else:
+    ML_ARTIFACTS_DIR = BASE_DIR
+
+ML_MODELS_DIR = ML_ARTIFACTS_DIR / "models" if (ML_ARTIFACTS_DIR / "models").exists() else BASE_DIR / "models"
+ML_ENCODERS_DIR = ML_ARTIFACTS_DIR / "encoders" if (ML_ARTIFACTS_DIR / "encoders").exists() else BASE_DIR / "encoders"
+ML_METADATA_DIR = ML_ARTIFACTS_DIR / "metadata" if (ML_ARTIFACTS_DIR / "metadata").exists() else BASE_DIR / "metadata"
