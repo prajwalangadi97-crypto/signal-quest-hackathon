@@ -181,8 +181,13 @@ def whatif_predict_api(request):
     if intersection_id:
         try:
             intersection = Intersection.objects.get(pk=intersection_id)
-        except Intersection.DoesNotExist:
-            pass
+        except (Intersection.DoesNotExist, ValueError):
+            try:
+                intersection = Intersection.objects.filter(
+                    Q(intersection_id__iexact=str(intersection_id)) | Q(intersection_id__icontains=str(intersection_id))
+                ).first()
+            except Exception:
+                pass
 
     try:
         result = registry.predict_whatif(vehicle_count, hour, weather, intersection)
