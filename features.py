@@ -103,7 +103,7 @@ def _slope(series: pd.Series) -> float:
 def normalize_raw(df: pd.DataFrame) -> pd.DataFrame:
     """Rename to snake_case, build intersection_id, sort, dedupe."""
     d = df.copy()
-    d["Date"] = pd.to_datetime(d["Date"])
+    d["Date"] = pd.to_datetime(d["Date"], dayfirst=True)
     d = d.rename(columns={
         "Date": "date",
         "Area Name": "area",

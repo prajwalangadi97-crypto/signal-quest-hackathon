@@ -455,5 +455,17 @@
     "cls::XGBoost": "artifacts/models/cls_XGBoost.pkl",
     "cls::LightGBM": "artifacts/models/cls_LightGBM.pkl",
     "reg::LSTM": "artifacts/models/lstm_model.keras"
+  },
+  "benchmark_accuracy_summary": {
+    "sensor_telemetry_5fold_accuracy": 96.21,
+    "top2_recommendation_accuracy_train": 100.0,
+    "top2_recommendation_accuracy_test": 90.25,
+    "operational_binary_congestion_accuracy_train": 99.96,
+    "operational_binary_congestion_accuracy_test": 87.89,
+    "roc_auc_ovr": 87.29,
+    "multiclass_strict_accuracy_test": 73.97,
+    "multiclass_training_accuracy": 99.88,
+    "volume_r2": 0.5833,
+    "volume_within_25_pct": 72.27
   }
 }
