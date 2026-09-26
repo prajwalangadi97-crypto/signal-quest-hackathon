@@ -42,7 +42,8 @@
 <!-- Weather + Summary Row -->
 <div style="display:grid; grid-template-columns: 310px 1fr; gap:1.4rem; margin-bottom:1.4rem;">
     <!-- Live Weather Card -->
-    <div class="card" id="weatherCard" style="padding:1.4rem; display:flex; flex-direction:column; justify-content:center; min-height:190px; background:linear-gradient(145deg, #171E24 0%, #1c252d 100%); border-radius:14px; margin-bottom:0;">
+    <div class="card" id="weatherCard" style="padding:1.4rem; display:flex; flex-direction:column; justify-content:center; min-height:190px; background:linear-gradient(145deg, rgba(25, 33, 44, 0.82) 0%, rgba(16, 22, 30, 0.82) 100%); backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px); border:1px solid rgba(255,255,255,0.08); border-radius:14px; position:relative; overflow:hidden; margin-bottom:0;">
+        <div style="position:absolute; top:0; left:0; right:0; height:3px; background:linear-gradient(90deg, #38BDF8, #818CF8);"></div>
         <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:0.6rem;">
             <span style="font-size:0.82rem; font-weight:700; text-transform:uppercase; letter-spacing:1px; color:#94A3B8;">Live Weather</span>
             <span style="font-size:0.75rem; background:rgba(34,211,238,0.15); color:var(--beacon); padding:3px 10px; border-radius:12px; font-family:'JetBrains Mono',monospace; font-weight:600;">Bengaluru</span>
