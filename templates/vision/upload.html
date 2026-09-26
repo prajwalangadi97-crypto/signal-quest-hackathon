@@ -125,6 +125,9 @@
                 <button class="btn btn-primary" id="detect-btn" disabled style="width:100%; padding: 12px;">
                     Detect Vehicles
                 </button>
+                <button type="button" class="btn btn-secondary" id="sample-btn" style="width:100%; margin-top: 8px; padding: 10px; background: rgba(30, 41, 59, 0.8); border: 1px solid var(--border); color: var(--beacon); display: flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer;">
+                    <span>🚗</span> Try Sample CCTV Traffic Image
+                </button>
             </div>
 
             <div class="error-msg" id="error-msg"></div>
@@ -250,6 +253,19 @@ function handleFile(file) {
     };
     reader.readAsDataURL(file);
 }
+
+// Sample button click
+document.getElementById('sample-btn')?.addEventListener('click', async function() {
+    try {
+        const resp = await fetch('/media/sample_traffic.jpg');
+        const blob = await resp.blob();
+        const file = new File([blob], 'sample_traffic.jpg', { type: 'image/jpeg' });
+        handleFile(file);
+        setTimeout(() => detectBtn.click(), 300);
+    } catch(e) {
+        console.error('Could not load sample image', e);
+    }
+});
 
 // Detect button click
 detectBtn.addEventListener('click', async function() {
