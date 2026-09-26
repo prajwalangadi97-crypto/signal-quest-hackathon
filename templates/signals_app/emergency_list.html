@@ -4,6 +4,35 @@
 {% block page_title %}Emergency Management{% endblock %}
 
 {% block content %}
+<!-- Visual Architecture Workflow Banner -->
+<div class="banner banner-info" style="margin-bottom: var(--space-2); background: rgba(23, 30, 36, 0.95); border: 1px solid rgba(255, 61, 113, 0.35); box-shadow: 0 4px 20px rgba(255, 61, 113, 0.08);">
+    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
+        <div style="display: flex; align-items: center; gap: 8px;">
+            <span style="font-size: 1.25rem;">🚨</span>
+            <strong style="color: #FF3D71; font-size: 0.95rem; text-transform: uppercase; letter-spacing: 0.05em;">IntelliFlow Emergency Preemption System</strong>
+        </div>
+        <span class="badge" style="background: rgba(255, 61, 113, 0.15); color: #FF3D71; border: 1px solid rgba(255, 61, 113, 0.4); font-size: 0.75rem;">Real-Time Priority</span>
+    </div>
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; font-size: 0.82rem; color: var(--lane-300);">
+        <div style="background: rgba(34, 211, 238, 0.05); padding: 10px 12px; border-radius: 6px; border-left: 3px solid #22D3EE;">
+            <div style="color: #22D3EE; font-weight: 600; margin-bottom: 2px;">1. Incident Detection</div>
+            Ambulance/Fire/Police logged by operator or auto-detected by CCTV YOLOv8 vision.
+        </div>
+        <div style="background: rgba(34, 197, 94, 0.05); padding: 10px 12px; border-radius: 6px; border-left: 3px solid #22c55e;">
+            <div style="color: #22c55e; font-weight: 600; margin-bottom: 2px;">2. Signal Green Lock</div>
+            Target junction is instantly overridden to continuous <strong>GREEN</strong>; cross traffic held RED.
+        </div>
+        <div style="background: rgba(168, 85, 247, 0.05); padding: 10px 12px; border-radius: 6px; border-left: 3px solid #a855f7;">
+            <div style="color: #a855f7; font-weight: 600; margin-bottom: 2px;">3. WebSocket Broadcast</div>
+            Live siren & emergency pulse broadcasted to the Live Map and operations grid in real-time.
+        </div>
+        <div style="background: rgba(245, 158, 11, 0.05); padding: 10px 12px; border-radius: 6px; border-left: 3px solid #f59e0b;">
+            <div style="color: #f59e0b; font-weight: 600; margin-bottom: 2px;">4. Clearance & Audit</div>
+            Clicking <em>Resolve</em> safely restores normal AI cycle and logs response duration to audit history.
+        </div>
+    </div>
+</div>
+
 <!-- Report Form -->
 <div class="card">
     <h3>Report Emergency Vehicle</h3>
