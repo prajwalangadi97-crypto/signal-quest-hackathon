@@ -8,7 +8,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@600;700&family=Inter:wght@400;500&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="{% static 'css/signal-grid.css' %}?v=2">
+    <link rel="stylesheet" href="{% static 'css/signal-grid.css' %}?v=4">
     {% block extra_css %}{% endblock %}
 </head>
 <body>
@@ -26,25 +26,41 @@
                 {% endfor %}
             </nav>
             <div class="sidebar-footer">
-                <span class="user-info" style="display:flex; align-items:center; gap:6px;">
-                    <span class="status-dot connected" style="display:inline-block; width:8px; height:8px;">&#9679;</span>
-                    {{ user.username|default:"Operator" }} &bull; Live System
+                <span class="user-info" style="display:flex; align-items:center; gap:8px;">
+                    <span class="status-dot connected" style="display:inline-block; width:10px; height:10px;">&#9679;</span>
+                    <strong>{{ user.username|default:"Operator" }}</strong> &bull; Live Control
                 </span>
             </div>
         </aside>
         <main class="main-content">
             <header class="topbar">
                 <h1 class="page-title">{% block page_title %}Dashboard{% endblock %}</h1>
+                <div class="topbar-center">
+                    <div class="live-clock" title="Real-Time Operation Clock">
+                        <span class="live-clock-dot"></span>
+                        <span id="live-clock-time">--:--:--</span>
+                        <span style="font-size:0.75rem; color:var(--lane-400); font-weight:700;">IST</span>
+                    </div>
+                    <div class="font-scale-control" title="Adjust Interface Sizing (Font Size)">
+                        <button type="button" class="scale-btn" id="btn-scale-dec" title="Decrease font size">A−</button>
+                        <span class="scale-indicator" id="scale-indicator">100%</span>
+                        <button type="button" class="scale-btn" id="btn-scale-inc" title="Increase font size">A+</button>
+                    </div>
+                </div>
                 <div class="topbar-status">
-                    {% if registry_healthy %}
-                    <span class="status-dot connected" title="Model registry healthy">&#9679;</span>
-                    <span class="status-label">ML OK</span>
-                    {% else %}
-                    <span class="status-dot" title="Model registry unhealthy">&#9679;</span>
-                    <span class="status-label">ML ERR</span>
-                    {% endif %}
-                    <span class="status-dot" id="ws-status" title="WebSocket disconnected">&#9679;</span>
-                    <span class="status-label">WS</span>
+                    <div class="status-pill">
+                        {% if registry_healthy %}
+                        <span class="status-dot connected" title="Model registry healthy">&#9679;</span>
+                        <span class="status-label" style="color:var(--flow); font-weight:700;">ML ONLINE</span>
+                        {% else %}
+                        <span class="status-dot" title="Model registry unhealthy">&#9679;</span>
+                        <span class="status-label" style="color:var(--severe); font-weight:700;">ML ERR</span>
+                        {% endif %}
+                    </div>
+                    <div class="status-pill">
+                        <span class="status-dot connected" id="ws-status">&#9679;</span>
+                        <span class="status-label" style="font-weight:600;">ACTIVE</span>
+                    </div>
                 </div>
             </header>
             <div class="content-area">
@@ -59,6 +75,86 @@
             </div>
         </main>
     </div>
+
+    <!-- Global Toast Container -->
+    <div id="toast-container" class="toast-container"></div>
+
+    <script>
+    // Universal Live Digital Clock
+    function updateLiveClock() {
+        const now = new Date();
+        const timeStr = now.toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' });
+        const el = document.getElementById('live-clock-time');
+        if (el) el.textContent = timeStr;
+    }
+    updateLiveClock();
+    setInterval(updateLiveClock, 1000);
+
+    // Universal Dynamic Font Size & UI Scale Controller
+    (function initFontScale() {
+        const root = document.documentElement;
+        const indicator = document.getElementById('scale-indicator');
+        const btnDec = document.getElementById('btn-scale-dec');
+        const btnInc = document.getElementById('btn-scale-inc');
+
+        const scales = [0.88, 1.0, 1.12, 1.25, 1.40];
+        let currentIndex = parseInt(localStorage.getItem('intelliflow_scale_idx') || '1', 10);
+        if (currentIndex < 0 || currentIndex >= scales.length) currentIndex = 1;
+
+        function applyScale() {
+            const scale = scales[currentIndex];
+            const basePx = Math.round(17 * scale);
+            root.style.fontSize = basePx + 'px';
+            root.style.setProperty('--ui-scale', scale);
+            if (indicator) indicator.textContent = Math.round(scale * 100) + '%';
+            localStorage.setItem('intelliflow_scale_idx', currentIndex);
+        }
+
+        applyScale();
+
+        if (btnDec) {
+            btnDec.addEventListener('click', () => {
+                if (currentIndex > 0) {
+                    currentIndex--;
+                    applyScale();
+                    showToast('Font scale set to ' + Math.round(scales[currentIndex] * 100) + '%', 'info');
+                }
+            });
+        }
+
+        if (btnInc) {
+            btnInc.addEventListener('click', () => {
+                if (currentIndex < scales.length - 1) {
+                    currentIndex++;
+                    applyScale();
+                    showToast('Font scale set to ' + Math.round(scales[currentIndex] * 100) + '%', 'info');
+                }
+            });
+        }
+    })();
+
+    // Universal Toast Notification Utility
+    window.showToast = function(message, type = 'info', duration = 3500) {
+        const container = document.getElementById('toast-container');
+        if (!container) return;
+        const toast = document.createElement('div');
+        toast.className = 'toast-msg toast-' + type;
+
+        let icon = 'ℹ️';
+        if (type === 'success') icon = '✅';
+        else if (type === 'warning') icon = '⚠️';
+        else if (type === 'danger') icon = '🚨';
+
+        toast.innerHTML = `<span style="font-size:1.2rem;">${icon}</span><div style="flex:1;">${message}</div>`;
+        container.appendChild(toast);
+
+        setTimeout(() => {
+            toast.style.opacity = '0';
+            toast.style.transform = 'translateY(10px)';
+            setTimeout(() => toast.remove(), 350);
+        }, duration);
+    };
+    </script>
     {% block extra_js %}{% endblock %}
 </body>
 </html>
